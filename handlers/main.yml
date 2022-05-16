@@ -1,0 +1,19 @@
+---
+# handlers file for apache
+- name: Restart apache
+  service:
+    name: apache2
+    state: restarted
+  listen: restart all service
+
+- name: Reload apache
+  service:
+    name: apache2
+    state: reloaded
+  listen: restart all service
+
+- name: Restart SQL
+  service:
+    name: mysql
+    state: restarted
+  listen: restart all service

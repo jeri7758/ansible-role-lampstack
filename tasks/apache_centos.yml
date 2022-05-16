@@ -1,0 +1,5 @@
+---
+- name: ensure httpd is installed
+  package:
+    name: httpd
+    state: present

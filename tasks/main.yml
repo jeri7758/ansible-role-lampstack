@@ -1,0 +1,27 @@
+---
+# tasks file for apache
+#Apache installation - Debian or CentOS
+- name: include variables for Apache
+  include_vars: apache_var.yml
+
+- name: include variables for SQL 
+  include_vars: sql_var.yml
+
+- name: include variables for PHP 
+  include_vars: php_var.yml
+
+#Apache installation
+- name: Apache installation and setup
+  include_tasks: apache.yml
+
+#SQL installation and setup
+- name: SQL installation
+  include_tasks: sql_setup.yml
+
+#PHP installation
+- name: PHP Installation
+  include_tasks: php.yml
+
+- name: Restarting all services 
+  command: /bin/true
+  notify: restart all service
