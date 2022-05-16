@@ -1,0 +1,6 @@
+---
+- name: Installing PHP binaries
+  apt: 
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ list_of_php }}"

@@ -1,0 +1,10 @@
+---
+- name: update cache
+  apt: update_cache=yes cache_valid_time=8000
+  changed_when: true
+
+- name: ensure apache is installed
+  apt: 
+    name: apache2
+    state: present
+

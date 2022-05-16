@@ -1,0 +1,25 @@
+---
+- include_tasks: apache_debian.yml
+  when: ansible_facts['os_family'] == 'Debian'
+
+- include_tasks: apache_centos.yml
+  when: ansible_facts['os_family'] == 'Centos'
+
+- name: copy apache configuration
+  template:
+    src: apache.conf.j2
+    dest: "{{ apache_dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart apache
+
+- name: "Create a document root - if it doesn't exist"
+  file:
+    path: "{{ apache_docroot }}"
+    state: directory
+
+- name: copy website content
+  template:
+    src: index.html.j2
+    dest: "{{ apache_docroot }}/index.html"

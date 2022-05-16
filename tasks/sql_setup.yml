@@ -1,0 +1,52 @@
+---
+- include_tasks: sql_dependency.yml
+
+- name: Create user Tom
+  user:
+    name: Tom
+    shell: /bin/bash
+    home: "{{ sql_doc }}"
+
+- name: Add .my.cnf to user home
+  template:
+    src: my.cnf.j2
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}" 
+  with_items:
+    - { dest: /root/.my.cnf, owner: root, group: root }
+    - { dest: /home/tom/.my.cnf, owner: Tom, group: Tom }
+
+- name: Ensure root user can only login from localhost
+  mysql_user:
+      login_user: root
+      login_password: ''
+      name: root
+      host: "{{ item }}"
+      password: "{{ sql_root }}"
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      check_implicit_admin: yes
+      priv: "*.*:ALL,GRANT"
+  with_items:
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+#- name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
+#  mysql_user:
+#    name: Tom
+#    password: "{{ sql_root }}"
+#    priv: '*.*:ALL,GRANT'
+#    state: present
+
+#- name: Changing SQL password at destination to a hashed form 
+#  shell: "{{ item }}"
+#  with_items: 
+#    - key_orig=$( cat /home/tom/.my.cnf | grep password | awk -F "=" '{print $2}' ) && echo $key_orig > /home/tom/key_back && key_hash=$( mkpasswd -m sha256crypt /home/tom/key_back ) && sed -i "s|$key_orig|$key_hash|g" /home/tom/.my.cnf
+
+- name: Reload privilege tables
+  command: |
+    mysql -p{{ sql_root }} -ne "{{ item }}"
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
